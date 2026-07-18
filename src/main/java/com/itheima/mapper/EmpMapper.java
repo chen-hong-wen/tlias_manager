@@ -84,4 +84,19 @@ public interface EmpMapper {
      * @return 每项包含 gender（性别）和 num（人数）
      */
     List<Map<String, Object>> countEmpGenderData();
+
+    /**
+     * 查询全部员工（供下拉框等场景使用）
+     * @return 员工列表
+     */
+    @Select("SELECT e.*, d.name deptName FROM emp e LEFT JOIN dept d ON e.dept_id = d.id ORDER BY e.update_time DESC")
+    List<Emp> listAll();
+
+    /**
+     * 根据用户名和密码查询员工信息
+     * @param emp
+     * @return
+     */
+    @Select("SELECT e.id, e.username, e.name FROM emp e WHERE e.username = #{username} AND e.password = #{password}")
+    Emp selectByUsernameandPassword(Emp emp);
 }

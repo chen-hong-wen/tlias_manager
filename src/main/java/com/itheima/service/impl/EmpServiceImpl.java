@@ -7,6 +7,8 @@ import com.itheima.mapper.EmpMapper;
 import com.itheima.pojo.*;
 import com.itheima.service.EmpLogService;
 import com.itheima.service.EmpService;
+import com.itheima.utils.JwtUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +17,11 @@ import org.springframework.util.CollectionUtils;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class EmpServiceImpl implements EmpService {
 
@@ -119,7 +123,7 @@ public class EmpServiceImpl implements EmpService {
         emp.setUpdateTime(LocalDateTime.now());
         empMapper.updateById(emp);
 
-        //2. 采用“先删除、再新增”的方式更新工作经历。
+        //2. 采用”先删除、再新增”的方式更新工作经历。
         //2.1 先删除原有工作经历。
         empExprMapper.deleteByEmpIds(Arrays.asList(emp.getId()));
         //2.2 再保存新的工作经历。
@@ -130,5 +134,31 @@ public class EmpServiceImpl implements EmpService {
             }
             empExprMapper.insertBatch(exprList);
         }
+    }
+
+    @Override
+    public List<Emp> listAll() {
+        return empMapper.listAll();
+    }
+
+    @Override
+    public LoginInfo login(Emp emp) {
+        //1. 根据用户名查询员工信息。
+        Emp e = empMapper.selectByUsernameandPassword(emp);
+
+        //2.判断是否存在员工
+        if (e != null) {
+            log.info("登录成功，员工信息：{}", e);
+            //3. 生成 JWT 令牌。
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("id", e.getId());
+            claims.put("username", e.getUsername());
+            String token = JwtUtils.generateToken(claims);
+            //3.1 存在，返回登录成功信息。
+            return new LoginInfo(e.getUsername(), e.getId(), token);
+        }
+
+        //3.不存在，返回null
+        return null;
     }
 }

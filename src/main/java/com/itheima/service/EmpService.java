@@ -1,9 +1,6 @@
 package com.itheima.service;
 
-import com.itheima.pojo.Emp;
-import com.itheima.pojo.EmpQueryParam;
-import com.itheima.pojo.JobOption;
-import com.itheima.pojo.PageResult;
+import com.itheima.pojo.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -42,5 +39,14 @@ public interface EmpService {
      */
     void update(Emp emp);
 
+    /**
+     * 查询全部员工
+     * @return 员工列表
+     */
+    List<Emp> listAll();
 
+    /**
+     * 登录
+     */
+    LoginInfo login(Emp emp);
 }
